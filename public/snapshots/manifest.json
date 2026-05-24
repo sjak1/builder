@@ -1,0 +1,11 @@
+{
+  "base": {
+    "path": "/snapshots/base.bin",
+    "gzipPath": "/snapshots/base.bin.gz",
+    "sha256": "80e0a8a8870205565092ab2b5795d2680d673c90696dadbab5e0954207324baf",
+    "gzipSha256": "12680f00c4fc7918337052961bebc67c6206525a6833fc92d2871308070d05f0",
+    "bytes": 77239700,
+    "gzipBytes": 15269304,
+    "generatedAt": "2026-05-20T10:34:45.354Z"
+  }
+}
