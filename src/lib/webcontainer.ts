@@ -149,7 +149,68 @@ class WebContainerManager {
     if (dir) {
       await this.container.fs.mkdir(dir, { recursive: true });
     }
+    const prev = await this.readFileSafe(path);
     await this.container.fs.writeFile(path, contents);
+
+    // If package.json gained new deps, kick off an npm install in the
+    // background. We don't await it — Vite will pick up the new modules
+    // once install finishes and HMR the page.
+    if (path === "package.json" && this.hasNewDeps(prev, contents)) {
+      void this.installDeps();
+    }
+  }
+
+  private async readFileSafe(path: string): Promise<string | null> {
+    try {
+      return await this.container!.fs.readFile(path, "utf-8");
+    } catch {
+      return null;
+    }
+  }
+
+  private hasNewDeps(prev: string | null, next: string): boolean {
+    if (!prev) return true;
+    try {
+      const a = JSON.parse(prev);
+      const b = JSON.parse(next);
+      const ka = new Set([
+        ...Object.keys(a.dependencies ?? {}),
+        ...Object.keys(a.devDependencies ?? {}),
+      ]);
+      const kb = [
+        ...Object.keys(b.dependencies ?? {}),
+        ...Object.keys(b.devDependencies ?? {}),
+      ];
+      return kb.some((k) => !ka.has(k));
+    } catch {
+      return false;
+    }
+  }
+
+  private installing = false;
+  async installDeps() {
+    if (!this.container || this.installing) return;
+    this.installing = true;
+    try {
+      this.log("\n*** installing new dependencies ***\n");
+      const proc = await this.container.spawn("npm", [
+        "install",
+        "--no-audit",
+        "--no-fund",
+        "--loglevel=error",
+      ]);
+      this.pipeOutput(proc, "npm");
+      const code = await proc.exit;
+      if (code !== 0) {
+        this.log(`\n*** npm install failed (code ${code}) ***\n`);
+      } else {
+        this.log("\n*** install complete — Vite will reload ***\n");
+      }
+    } catch (err) {
+      this.log(`\n*** install error: ${(err as Error).message} ***\n`);
+    } finally {
+      this.installing = false;
+    }
   }
 
   async deleteFile(path: string) {

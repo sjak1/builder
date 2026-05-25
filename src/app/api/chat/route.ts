@@ -125,7 +125,10 @@ Workflow each build turn:
 2. Call tools to make the changes. Tool results come back to you — if a tool errors, read the message and retry. Don't repeat the same failing call.
 3. End with a one-line summary of what changed. Do not call any more tools after the summary.
 
-If a new npm dependency is needed, edit package.json to add it (the sandbox will reinstall).`;
+PACKAGES:
+Pre-installed and instantly available: react, react-dom, hono, @hono/node-server, tailwindcss, vite, typescript.
+
+For ANY other package (lucide-react, framer-motion, clsx, zustand, react-router-dom, recharts, date-fns, etc.) — just edit package.json to add it to "dependencies". The sandbox auto-detects new entries and runs npm install in the background; Vite reloads the page once the module is available (usually 5-15s). Prefer popular, pure-JS packages with no native bindings (WebContainer can't load .node files).`;
 
 export async function POST(req: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
