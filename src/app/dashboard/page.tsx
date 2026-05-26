@@ -41,7 +41,7 @@ export default async function DashboardPage() {
         </div>
       </header>
 
-      <main className="relative z-10 max-w-7xl mx-auto px-6 py-14">
+      <main className="relative z-10 max-w-7xl mx-auto px-6 py-14 page-enter">
         {/* page heading */}
         <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
           <div>
